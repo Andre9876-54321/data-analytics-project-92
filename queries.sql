@@ -1,11 +1,11 @@
-Запрос, который считает общее количество покупателей из таблицы customers:
+#1
 select 
 count(customer_id) as customers_count
 from customers;
 
-Запрос о продавцах, у которых наибольшая выручка:
+#2
 SELECT
-CONCAT(first_name, last_name) AS seller,
+CONCAT(first_name, ' ', last_name) AS seller,
 COUNT(sales.sales_person_id) AS operations,
 FLOOR(SUM(sales.quantity * products.price)) AS income
 FROM sales
@@ -15,7 +15,7 @@ GROUP BY 1
 ORDER BY 3 DESC
 LIMIT 10;
 
-Запрос о продавцах, чья выручка ниже средней выручки всех продавцов:
+#3
 WITH 
 avgincomeall AS
 (
@@ -34,10 +34,9 @@ GROUP BY 1
 HAVING AVG(sales.quantity * products.price) < (SELECT * FROM avgincomeall)
 ORDER BY 2;
 
-
-Запрос о выручке по каждому продавцу и дню недели:
+#4
 SELECT
-CONCAT(employees.first_name, employees.last_name) AS seller,
+CONCAT(employees.first_name, ' ', employees.last_name) AS seller,
 TO_CHAR(sales.sale_date, 'day') AS day_of_week,
 FLOOR(SUM(sales.quantity * products.price)) AS income
 FROM sales
@@ -46,7 +45,7 @@ LEFT JOIN products ON products.product_id = sales.product_id
 GROUP BY EXTRACT(ISODOW FROM sales.sale_date), 1, 2 
 ORDER BY EXTRACT(ISODOW FROM sales.sale_date), 1;
 
-Запрос о возрастных группах покупателей:
+#5
 SELECT
 (
 CASE
@@ -55,12 +54,12 @@ WHEN customers.age BETWEEN 26 AND 40 THEN '26-40'
 WHEN customers.age > 40 THEN '40+'
 END 
 ) AS age_category,
-COUNT (*) customer_id
+COUNT (*) AS age_count
 FROM customers
 Group by 1
 order by 1;
 
-Запрос о количестве уникальных покупателей и выручке по месяцам:
+#6
 SELECT
 TO_CHAR(sales.sale_date, 'YYYY-MM') AS selling_month,
 COUNT(DISTINCT sales.customer_id) AS total_customers,
@@ -72,7 +71,7 @@ LEFT JOIN employees ON sales.sales_person_id = employees.employee_id
 GROUP BY 1
 ORDER BY 1;
 
-Запрос о покупателях, первая покупка которых пришлась на время проведения специальных акций:
+#7
 SELECT 
 DISTINCT ON (customers.customer_id) 
 customers.first_name || ' ' || customers.last_name AS customer,
@@ -84,4 +83,3 @@ LEFT JOIN products ON sales.product_id = products.product_id
 LEFT JOIN employees ON sales.sales_person_id = employees.employee_id 
 WHERE products.price = 0 
 ORDER BY customers.customer_id, sales.sale_date;
-
